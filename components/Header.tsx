@@ -4,7 +4,7 @@ import Image from 'next/image'
 import { useAddress, useDisconnect } from '@thirdweb-dev/react'
 import { Bars3BottomRightIcon } from '@heroicons/react/24/solid'
 
-import { NavButton, Login } from '../components'
+import { NavButton } from '../components'
 import { AlchemyLogo } from '../assets'
 
 interface Props {}
@@ -12,8 +12,6 @@ interface Props {}
 const Header: NextPage = (props: Props) => {
   const address = useAddress()
   const disconnect = useDisconnect()
-
-  if (!address) return <Login />
 
   return (
     <header className='grid grid-cols-2 md:grid-cols-5 justify-between items-center p-5'>
@@ -35,8 +33,8 @@ const Header: NextPage = (props: Props) => {
         </div>
       </div>
 
-      <div className='hidden md:flex md:col-span-3 items-center justify-center rounded-md'>
-        <div className='bg-[#1a171c] p-4 space-x-2'>
+      <div className='hidden md:flex md:col-span-3 items-center justify-center'>
+        <div className='bg-[#151416] px-4 py-3 space-x-2 rounded-lg'>
           <NavButton isActive title='Buy Tickets' />
           <NavButton onClick={disconnect} title='Logout' />
         </div>
