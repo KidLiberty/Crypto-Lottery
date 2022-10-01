@@ -12,4 +12,12 @@
   .stats-container {
     @apply flex-1 bg-[#070707] text-white p-5 border-2 rounded-lg border-[#d52f8d];
   }
+
+  .countdown {
+    @apply p-8 text-5xl text-center text-white rounded-lg lg:min-w-[150px] bg-[#133131];
+  }
+
+  .countdown-label {
+    @apply text-center text-white text-sm pt-4 uppercase;
+  }
 }
