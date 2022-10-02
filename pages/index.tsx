@@ -10,8 +10,15 @@ import {
 } from '@thirdweb-dev/react'
 import { ethers } from 'ethers'
 import toast from 'react-hot-toast'
+import Marquee from 'react-fast-marquee'
 
-import { Header, Login, Loading, CountdownTimer } from '../components'
+import {
+  Header,
+  Login,
+  Loading,
+  CountdownTimer,
+  AdminControls
+} from '../components'
 import { useEffect, useState } from 'react'
 import { currency } from '../constants'
 
@@ -37,8 +44,25 @@ const Home: NextPage = () => {
     'ticketCommission'
   )
   const { data: tickets } = useContractRead(contract, 'getTickets')
-
   const { mutateAsync: BuyTickets } = useContractWrite(contract, 'BuyTickets')
+  const { data: winnings } = useContractRead(
+    contract,
+    'getWinningsForAddress',
+    address
+  )
+  const { mutateAsync: WithdrawWinnings } = useContractWrite(
+    contract,
+    'WithdrawWinnings'
+  )
+  const { data: lastWinner } = useContractRead(contract, 'lastWinner')
+  const { data: lastWinnerAmount } = useContractRead(
+    contract,
+    'lastWinnerAmount'
+  )
+  const { data: isLotteryOperator } = useContractRead(
+    contract,
+    'lotteryOperator'
+  )
 
   useEffect(() => {
     if (!tickets) return
@@ -49,8 +73,6 @@ const Home: NextPage = () => {
     )
     setUserTickets(numberOfUserTickets)
   }, [tickets, address])
-
-  console.log(userTickets)
 
   const handleClick = async () => {
     if (!ticketPrice) return
@@ -74,18 +96,74 @@ const Home: NextPage = () => {
     }
   }
 
-  if (isLoading) return <Loading />
+  const onWithdrawWinnings = async () => {
+    const notification = toast.loading('Withdrawing your winnings...')
 
+    try {
+      const data = await WithdrawWinnings([{}])
+
+      toast.success('Winnings withdrawn successfully', { id: notification })
+    } catch (e) {
+      toast.error('Whoops, something went wrong!', { id: notification })
+
+      console.error('Contract call failure.', e)
+    }
+  }
+
+  if (isLoading) return <Loading />
   if (!address) return <Login />
 
   return (
-    <div className='bg-[#070707] min-h-screen flex flex-col'>
+    <div className='bg-[#000000] min-h-screen flex flex-col'>
       <Head>
         <title>Crypto Lottery</title>
       </Head>
 
       <div className='flex-1'>
         <Header />
+        <Marquee className='bg-[#131313] p-5 mb-5' gradient={false} speed={100}>
+          <div className='flex space-x-2 text-white mx-10'>
+            <h4 className='mx-10'>
+              Last Winner:{' '}
+              <span className='text-[#d52f8d]'>{lastWinner?.toString()}</span>
+            </h4>
+            <h4>
+              Previous Winnings:{' '}
+              <span className='text-[#d52f8d]'>
+                {ethers.utils.formatEther(lastWinnerAmount?.toString())}{' '}
+                {currency}
+              </span>
+            </h4>
+          </div>
+        </Marquee>
+
+        {isLotteryOperator === address && (
+          <div className='flex justify-center'>
+            <AdminControls />
+          </div>
+        )}
+
+        {winnings > 0 && (
+          <div className='max-w-md md:max-w-2xl lg:max-w-4xl mx-auto mt-5'>
+            <button
+              className='p-5 bg-gradient-to-b from-orange-500 to-emerald-600 text-center rounded-xl w-full animate-pulse'
+              onClick={onWithdrawWinnings}
+            >
+              <p className='font-bold text-xl'>
+                Winner! Winner! Chicken Dinner!
+              </p>
+              <p className='text-[20px]'>
+                Total Winnings:{' '}
+                <span className='italic'>
+                  {ethers.utils.formatEther(winnings.toString())}
+                </span>{' '}
+                <span className='font-semibold'>{currency}</span>
+              </p>
+              <br />
+              <p className='font-semibold'>Click here to withdraw.</p>
+            </button>
+          </div>
+        )}
 
         <div className='space-y-5 md:space-y-0 m-5 md:flex md:flex-row items-start justify-center md:space-x-5'>
           <div className='stats-container'>

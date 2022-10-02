@@ -20,4 +20,8 @@
   .countdown-label {
     @apply text-center text-white text-sm pt-4 uppercase;
   }
+
+  .admin-button {
+    @apply bg-[#5380bc] p-2 flex-1 rounded-md border-[#333] border-2 hover:bg-[#5380bc]/70 active:bg-[#5380bc]/50;
+  }
 }
